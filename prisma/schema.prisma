@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// db seed data controller -> [/prisma/seeds]
+model dbSeeds {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  generatedAt DateTime @updatedAt() @db.Timestamp()
+
+  @@map("aaaSeeds")
+}
+
+model mUsers {
+  id          String           @id @default(auto()) @map("_id") @db.ObjectId
+  information mInformations?
+  roles       mUserMRoleRels[]
+  username    String           @unique()
+  password    String
+  isActive    Boolean?         @default(false)
+  createdAt   DateTime         @default(now()) @db.Timestamp()
+  updatedAt   DateTime?        @updatedAt() @db.Timestamp()
+  deletedById String?          @db.ObjectId
+  deletedAt   DateTime?        @db.Timestamp()
+}
+
+// otm: [mUsers]
+model mInformations {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  user         mUsers?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  userId       String?   @unique @db.ObjectId // flag: has user access
+  email        String    @unique()
+  name         String
+  identityCode String    @unique
+  gender       String    @default("o") // m,f,o
+  photoProfile String?
+  phoneNumber  String?
+  address      String?
+  isActive     Boolean?  @default(false)
+  createdAt    DateTime  @default(now()) @db.Timestamp()
+  updatedAt    DateTime? @updatedAt() @db.Timestamp()
+  deletedById  String?
+  deletedAt    DateTime? @db.Timestamp()
+}
+
+// otm: [mUserMRoleRels]
+model mRoles {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  mUserMRoleRels mUserMRoleRels[]
+  code           String           @unique
+  name           String
+  desc           String?
+  isActive       Boolean?         @default(false)
+  createdAt      DateTime         @default(now()) @db.Timestamp()
+  updatedAt      DateTime?        @updatedAt() @db.Timestamp()
+  deletedById    String?          @db.ObjectId
+  deletedAt      DateTime?        @db.Timestamp()
+}
+
+// mtm: [mUsers] -> [mUserMRoleRels]
+model mUserMRoleRels {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  user   mUsers @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @db.ObjectId
+  role   mRoles @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  roleId String @db.ObjectId
+}
+
+// mtm: [pArticleMTagRels] -> [pArticles]
+model mArticleTags {
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  name        String             @unique
+  slug        String
+  isActive    Boolean?           @default(false)
+  createdAt   DateTime           @default(now()) @db.Timestamp()
+  updatedAt   DateTime?          @updatedAt() @db.Timestamp()
+  deletedById String?            @db.ObjectId
+  deletedAt   DateTime?          @db.Timestamp()
+  article     pArticleMTagRels[]
+}
+
+// mto: [pArticles]
+model mArticleCategories {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String
+  isActive    Boolean?    @default(false)
+  createdAt   DateTime    @default(now()) @db.Timestamp()
+  updatedAt   DateTime?   @updatedAt() @db.Timestamp()
+  deletedById String?     @db.ObjectId
+  deletedAt   DateTime?   @db.Timestamp()
+  article     pArticles[]
+}
+
+// otm: [mArticleCategories]
+// mtm: [pArticleMTagRels] -> [mArticleTags]
+model pArticles {
+  id          String              @id @default(auto()) @map("_id") @db.ObjectId
+  category    mArticleCategories? @relation(fields: [categoryId], references: [id])
+  categoryId  String?             @db.ObjectId
+  tags        pArticleMTagRels[]
+  title       String
+  slug        String              @unique()
+  photo       String?
+  content     String
+  createdAt   DateTime            @default(now()) @db.Timestamp()
+  updatedAt   DateTime?           @updatedAt() @db.Timestamp()
+  deletedById String?             @db.ObjectId
+  deletedAt   DateTime?           @db.Timestamp()
+}
+
+// mtm: [pArticles] -> mArticleTags
+model pArticleMTagRels {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  article   pArticles    @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  articleId String       @db.ObjectId
+  tag       mArticleTags @relation(fields: [tagId], references: [id], onUpdate: Cascade)
+  tagId     String       @db.ObjectId
+}
