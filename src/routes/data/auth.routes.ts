@@ -22,10 +22,10 @@ export const AuthRoutes = (app: AppType) =>
       },
       (app) =>
         app
-          .post("signin", ({ body, jwt }) => c.signin(body, jwt.sign), {
+          .post("signin", async ({ body, jwt }) => c.signin(body, jwt.sign), {
             ...m.signinForm,
             response: {
-              // ...m.signinResponse,
+              ...m.signinResponse,
               ...errorModels.unprocessableContent,
             },
           })
@@ -33,17 +33,16 @@ export const AuthRoutes = (app: AppType) =>
             app
               .resolve(authUserResolve)
               .post("signout", () => c.signout())
+
               .group("profile", (app) =>
                 app
                   .get("/", ({ credentials }) => c.profile(credentials), {
                     response: { ...m.profileResponse, ...errorModels.notFound },
                   })
                   .patch(
-                    "update",
-                    ({ credentials, body, set }) => {
-                      set.status = StatusMap.Created;
-                      return c.profileUpdate(credentials, body);
-                    },
+                    "/",
+                    ({ credentials, body, set }) =>
+                      c.profileUpdate(credentials, body, set),
                     {
                       body: m.profileUpdateBodyWithObj,
                       response: {
@@ -54,10 +53,29 @@ export const AuthRoutes = (app: AppType) =>
                   )
                   .patch(
                     "new-password",
-                    () => c.newPassword(),
-                    m.newPasswordForm
+                    ({ credentials, body, set }) =>
+                      c.newPassword(credentials, body, set),
+                    {
+                      ...m.newPasswordForm,
+                      response: {
+                        ...m.newPasswordResponse,
+                        ...errorModels.unprocessableContent,
+                        ...errorModels.serviceUnavailable,
+                      },
+                    }
                   )
-                  .patch("new-ava", () => c.newAva(), m.newAvaForm)
+                  .post(
+                    "new-ava",
+                    ({ body, credentials, set, storage }) =>
+                      c.newAva(credentials, body, set, storage),
+                    {
+                      ...m.newAvaForm,
+                      response: {
+                        ...m.newAvaResponse,
+                        ...errorModels.unprocessableContent,
+                      },
+                    }
+                  )
               )
           )
 

@@ -36,10 +36,10 @@ export default class MUsersInit1715849021951 {
 
     // delete rels
     await Promise.all([
-      await prisma.mUserMRoleRels.deleteMany({
+      prisma.mUserMRoleRels.deleteMany({
         where: { userId: id },
       }),
-      await prisma.mInformations.delete({ where: { userId: id } }),
+      prisma.mInformations.delete({ where: { userId: id } }),
     ]);
 
     // delete user data

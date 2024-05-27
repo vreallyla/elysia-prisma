@@ -1,15 +1,20 @@
-import Elysia, { NotFoundError, ValidationError } from "elysia";
-import { UnauthorizedError } from "../responses/unauthorized.error";
+import Elysia, { NotFoundError, StatusMap, ValidationError } from "elysia";
+import { UnauthorizedError } from "../exceptions/400/unauthorized.error";
 import { ZodError } from "zod";
 import { errorModels } from "../models/responses/error.models";
+import { ServiceUnavailbleError } from "../exceptions/500/service_unavailable.error";
 
 export const errorConfig = (app: Elysia) =>
   app.onError(({ error, code, set }) => {
     // cond: not found data
     if (error instanceof NotFoundError) return errorModels.notFoundMsg;
 
-    // cond unauthorized
-    if (error instanceof UnauthorizedError) return error.response;
+    // cond exceptions
+    if (
+      error instanceof UnauthorizedError ||
+      error instanceof ServiceUnavailbleError
+    )
+      return error.response;
 
     // cond: need validate form i [zod: custom validation -> handdle transform async validation issues & validate in controller]
     if (error instanceof ZodError) {
@@ -31,6 +36,8 @@ export const errorConfig = (app: Elysia) =>
         },
         {}
       );
+
+      set.status = StatusMap["Unprocessable Content"];
 
       return {
         type: "NEED_VALIDATION",

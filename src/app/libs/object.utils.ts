@@ -40,3 +40,17 @@ export const omitObject: (
 
   return obj;
 };
+
+// TODO:: NESTED WITH DOT DELIMITER
+export const pickObject: (
+  obj: Record<string, any>,
+  strs?: string[]
+) => Record<string, any> = (obj, strs = []) => {
+  return Object.keys(obj).reduce(
+    (prev, key) => ({
+      ...prev,
+      ...(strs.includes(key) ? { [key]: obj[key] } : {}),
+    }),
+    {}
+  );
+};

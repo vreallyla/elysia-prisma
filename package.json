@@ -13,17 +13,24 @@
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.0.2",
+    "@elysiajs/static": "^1.0.3",
     "@elysiajs/swagger": "^1.0.5",
     "@prisma/client": "5.14.0",
     "@yolk-oss/elysia-env": "^1.0.2",
+    "axios": "^1.7.2",
     "elysia": "latest",
     "elysia-compression": "^0.0.7",
     "elysia-helmet": "^1.0.2",
     "elysia-rate-limit": "^3.0.0",
+    "form-data": "^4.0.0",
     "logestic": "^1.1.1",
+    "nanoid": "^5.0.7",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.13",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/nodemailer": "^6.4.15",
     "bun-types": "latest",
     "prisma": "^5.14.0"
   },

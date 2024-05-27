@@ -23,13 +23,25 @@ export abstract class errorModels {
 
   static readonly unauthorized = {
     401: t.Object({
-      type: t.String({ default: "UNAUTHORIZED" }),
+      type: t.String({ default: this.unauthorizedMsg.type }),
       message: t.String({
-        default: "invalid access credentials or access restrictions",
+        default: this.unauthorizedMsg.message,
       }),
     }),
   };
 
+  static readonly serviceUnavailableMsg = {
+    type: "SERVICE_UNAVAILABLE",
+    message: "try again later or contact admin for more informations",
+  };
+  static readonly serviceUnavailable = {
+    503: t.Object({
+      type: t.String({ default: this.serviceUnavailableMsg.type }),
+      message: t.String({
+        default: this.serviceUnavailableMsg.message,
+      }),
+    }),
+  };
   static readonly tooManyRequest = t.Object({
     type: t.String({ default: "TOO_MANY_REQUEST" }),
     message: t.String({

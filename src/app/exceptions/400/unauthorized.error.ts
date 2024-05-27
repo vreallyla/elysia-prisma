@@ -1,4 +1,4 @@
-import { errorModels } from "../models/responses/error.models";
+import { errorModels } from "../../models/responses/error.models";
 
 export class UnauthorizedError extends Error {
   code: string;

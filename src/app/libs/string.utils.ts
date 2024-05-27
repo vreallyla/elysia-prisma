@@ -1,5 +1,6 @@
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
+import { isDev } from "./bool.utils";
 
 const scryptAsync = promisify(scrypt);
 
@@ -34,3 +35,9 @@ export const toKebabCase = (ref: string) =>
     .split(" ")
     .map((e) => e.toLowerCase())
     .join(" ");
+
+export const parseToUrl = (ref?: string | null) => {
+  if (!ref) return null;
+
+  return `${isDev() ? Bun.env.APP_URL_DEV : Bun.env.APP_URL_PROD}/${ref}`;
+};

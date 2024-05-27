@@ -18,6 +18,9 @@ import { helmet } from "elysia-helmet";
 import { helmetConfig } from "./app/setups/helmet.configs";
 import { errorConfig } from "./app/setups/errors.configs";
 import { RateLimitConfigs } from "./app/setups/rate_limit.configs";
+import { MailMain } from "./mail/mail.main";
+import staticPlugin from "@elysiajs/static";
+import { StorageMain } from "./app/storages/storage.main";
 
 const encoder = new TextEncoder();
 export type AppType = typeof app;
@@ -25,9 +28,12 @@ export type AppType = typeof app;
 // init setup
 const app = new Elysia()
   .decorate("prisma", prismaInit(true)) // db orm
+  .decorate("mail", new MailMain()) // mail provider
+  .decorate("storage", new StorageMain().init()) // storage provider
   .use(compression()) // response compression
   .use(helmetConfig()) // handdle headers -> security reason
   .use(envConfig()) // env requirement
+  .use(staticPlugin({ prefix: "/assets" })) // static public
   .use(log()) // logger
   .use(RateLimitConfigs) // rate limiter
   .use(new SwaggerConfig().init()) // swagger

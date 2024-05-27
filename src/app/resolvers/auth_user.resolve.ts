@@ -3,11 +3,13 @@ import {
   AuthUserResolveResponse,
   AuthUserResolveType,
 } from "../../types/resolver.types";
-import { UnauthorizedError } from "../responses/unauthorized.error";
+import { UnauthorizedError } from "../exceptions/400/unauthorized.error";
 
 export const authUserResolve: AuthUserResolveType<{
   credentials: AuthUserResolveResponse;
-}> = async ({ jwt, headers: { authorization: ref }, prisma }) => {
+}> = async ({ jwt, headers, prisma }) => {
+  const { authorization: ref } = headers;
+
   // cut bearer marks
   const token: string = (typeof ref == "string" ? ref : "").slice(7);
 

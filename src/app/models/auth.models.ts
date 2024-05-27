@@ -26,6 +26,7 @@ export class AuthModels {
     name: t.String({ minLength: 3 }),
     email: t.String({ format: "email" }),
     photoProfile: t.Nullable(t.String()),
+    photoProfileUrl: t.Nullable(t.String()),
     identityCode: t.Uppercase(t.String()),
     gender: t
       .Transform(t.String())
@@ -37,10 +38,19 @@ export class AuthModels {
 
   readonly profileUpdateBodyWithObj = t.Omit(t.Object(this.profileUpdateBody), [
     "identityCode",
+    "photoProfileUrl",
+    "photoProfile",
   ]);
 
   profileUpdateResponse = {
     201: SuccessModels.updated(this.profileUpdateBody),
+  };
+
+  newAvaResponse = {
+    201: SuccessModels.updated({
+      photoProfile: t.Nullable(t.String()),
+      photoProfileUrl: t.Nullable(t.String()),
+    }),
   };
 
   readonly profileResponse = {
@@ -63,10 +73,16 @@ export class AuthModels {
   };
   readonly newPasswordForm = {
     body: t.Object({
-      password: t.String(),
-      rePassword: t.String(),
+      currentPassword: t.String(),
+      newPassword: t.String(),
+      reNewPassword: t.String(),
     }),
   };
+
+  newPasswordResponse = {
+    201: SuccessModels.updated({}),
+  };
+
   readonly newAvaForm = {
     body: t.Object({
       photoProfile: t.File({ type: ["image"] }),

@@ -3,12 +3,12 @@ import { existsSync, mkdirSync, readdirSync } from "fs";
 import { resolve } from "path";
 import { Log } from "../../src/app/libs/log.utils";
 import { toHash } from "../../src/app/libs/string.utils";
-import { prismaConfig } from "../../src/database/prisma.db";
+import { prismaInit } from "../../src/database/prisma.db";
 import { dateAddMinutes } from "../../src/app/libs/date.utils";
 
 const seedLocation = resolve(__dirname, "./data");
 
-const prisma = prismaConfig();
+const prisma = prismaInit();
 const seeds = readdirSync(seedLocation).sort();
 const [command] = process.argv.slice(2);
 const isRevert = command && command.toLowerCase() == "revert";
@@ -53,13 +53,13 @@ const runSeeds = async () => {
     await prisma.$transaction(async (q) => {
       if (isRevert) {
         await Promise.all([
-          await run.down(q),
-          await q.dbSeeds.deleteMany({ where: { name: getClass.name } }),
+          run.down(q),
+          q.dbSeeds.deleteMany({ where: { name: getClass.name } }),
         ]);
       } else {
         await Promise.all([
-          await run.up(q),
-          await q.dbSeeds.create({
+          run.up(q),
+          q.dbSeeds.create({
             data: {
               generatedAt: new Date(),
               name: getClass.name ?? startTime,
